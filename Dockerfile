@@ -30,7 +30,12 @@ RUN pip install --no-cache-dir --upgrade pip \
 # Install the upstream server (pulls in Irodori-TTS itself, DACVAE, SilentCipher,
 # transformers, etc.) plus the RunPod SDK. The PyPI project name is
 # `irodori-tts-server` even though the Python module is `irodori_openai_tts`.
+#
+# `dacvae` must be specified explicitly here: Irodori-TTS lists it as a plain
+# dependency and resolves the git URL via uv's `[tool.uv.sources]` block, which
+# pip does not read. Without this pin pip looks for it on PyPI and fails.
 RUN pip install --no-cache-dir \
+        "dacvae @ git+https://github.com/facebookresearch/dacvae" \
         "irodori-tts-server @ git+https://github.com/Aratako/Irodori-TTS-Server.git" \
         "runpod>=1.7.0"
 
