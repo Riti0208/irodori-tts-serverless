@@ -71,6 +71,31 @@ def main() -> int:
         return 1
 
     js = r.json()
+    # /runsync may return early with status=IN_QUEUE / IN_PROGRESS when the
+    # worker is still spinning up. In that case fall back to polling /status
+    # until the job finishes.
+    if isinstance(js, dict) and js.get("status") in {"IN_QUEUE", "IN_PROGRESS"} and "id" in js:
+        job_id = js["id"]
+        status_url = f"https://api.runpod.ai/v2/{args.endpoint_id}/status/{job_id}"
+        print(f"  job {js['status']} -> polling {status_url}")
+        deadline = time.time() + 600
+        while time.time() < deadline:
+            time.sleep(5)
+            sr = requests.get(status_url, headers=headers, timeout=60)
+            sj = sr.json()
+            status = sj.get("status")
+            print(f"  status={status} ({time.time() - t0:.1f}s elapsed)")
+            if status in {"COMPLETED", "FAILED", "CANCELLED", "TIMED_OUT"}:
+                js = sj
+                break
+        else:
+            print("polling timed out", file=sys.stderr)
+            return 1
+
+    if js.get("status") == "FAILED":
+        print("job FAILED:", json.dumps(js, ensure_ascii=False)[:2000], file=sys.stderr)
+        return 1
+
     output = js.get("output") or js
     if isinstance(output, dict) and output.get("error"):
         print("worker error:", output["error"], file=sys.stderr)
