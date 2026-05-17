@@ -20,16 +20,18 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PyTorch from the CUDA 12.8 wheel index first so transitive resolution
-# downstream picks the GPU build. Linux container — no torchcodec DLL issues.
+# downstream picks the GPU build. Pin to 2.11.0 — newer PyPI 2.12 ships cu13
+# default wheels and would be picked over the cu128 build under --extra-index-url.
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir \
         --extra-index-url https://download.pytorch.org/whl/cu128 \
-        "torch>=2.10.0" "torchaudio>=2.10.0"
+        "torch==2.11.0" "torchaudio==2.11.0"
 
 # Install the upstream server (pulls in Irodori-TTS itself, DACVAE, SilentCipher,
-# transformers, etc.) plus the RunPod SDK.
+# transformers, etc.) plus the RunPod SDK. The PyPI project name is
+# `irodori-tts-server` even though the Python module is `irodori_openai_tts`.
 RUN pip install --no-cache-dir \
-        "irodori-openai-tts @ git+https://github.com/Aratako/Irodori-TTS-Server.git" \
+        "irodori-tts-server @ git+https://github.com/Aratako/Irodori-TTS-Server.git" \
         "runpod>=1.7.0"
 
 # Bake all model weights into the image so cold start does not hit HuggingFace.

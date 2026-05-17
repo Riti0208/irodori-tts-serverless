@@ -6,7 +6,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 dependencies = [
-    "irodori-openai-tts @ git+https://github.com/Aratako/Irodori-TTS-Server.git",
+    "irodori-tts-server @ git+https://github.com/Aratako/Irodori-TTS-Server.git",
     "runpod>=1.7.0",
 ]
 
