@@ -60,6 +60,11 @@ RUN python -c "from huggingface_hub import hf_hub_download; \
 COPY handler.py ./
 COPY voices ./voices
 
+# Speaker LoRA adapters (PEFT). Selected per-request via irodori.lora_adapter,
+# e.g. {"irodori": {"lora_adapter": "/app/adapters/ema"}}. The upstream server
+# caches a loaded adapter; pass "none"/"base"/null to fall back to the base model.
+COPY adapters ./adapters
+
 # Inference defaults for serverless GPU workers.
 ENV IRODORI_MODEL_DEVICE=cuda \
     IRODORI_CODEC_DEVICE=cuda \
