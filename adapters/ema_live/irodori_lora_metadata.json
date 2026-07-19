@@ -1,0 +1,6 @@
+{
+  "base_init": {
+    "mode": "checkpoint",
+    "checkpoint_path": "/home/daich/.cache/huggingface/hub/models--Aratako--Irodori-TTS-500M-v3/snapshots/236c1e56591279fc24e3c1bf6609fc06e48dde28/model.safetensors"
+  }
+}
